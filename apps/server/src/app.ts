@@ -14,8 +14,17 @@ export function buildApp() {
   });
 
   // ── CORS ──────────────────────────────────────────────────────────────────
+  // Requests without an Origin header (healthchecks, curl, server-to-server)
+  // are allowed through unconditionally. Browser requests must come from
+  // CORS_ORIGIN. All other origins are rejected.
   app.register(cors, {
-    origin: env.CORS_ORIGIN,
+    origin: (origin, cb) => {
+      if (!origin || origin === env.CORS_ORIGIN) {
+        cb(null, true);
+      } else {
+        cb(new Error("Not allowed by CORS"), false);
+      }
+    },
     methods: ["GET", "POST", "OPTIONS"],
   });
 
