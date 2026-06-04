@@ -16,21 +16,11 @@ export function buildApp() {
   // Manual hook instead of @fastify/cors so OPTIONS preflight is guaranteed
   // to be handled regardless of plugin registration order or version quirks.
   app.addHook("onRequest", async (request, reply) => {
-    const origin = request.headers.origin;
-
-    // Reflect the allowed origin; requests without Origin pass through freely.
-    if (origin === env.CORS_ORIGIN || origin === env.CORS_ORIGIN.replace(/\/$/, "")) {
-      reply.header("Access-Control-Allow-Origin", origin);
-    } else if (!origin) {
-      // Server-to-server / healthcheck — no CORS header needed.
-    }
-
+    reply.header("Access-Control-Allow-Origin", "*");
     reply.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     reply.header("Access-Control-Allow-Headers", "Content-Type");
     reply.header("Access-Control-Max-Age", "86400");
-    reply.header("Vary", "Origin");
 
-    // Answer the preflight immediately — never let it fall through to routes.
     if (request.method === "OPTIONS") {
       await reply.code(204).send();
     }
