@@ -14,16 +14,21 @@ export function buildApp() {
   });
 
   // ── CORS ──────────────────────────────────────────────────────────────────
-  // Requests without an Origin header (healthchecks, curl, server-to-server)
-  // are allowed through unconditionally. Browser requests must come from
-  // CORS_ORIGIN. All other origins are rejected.
+  // Origin validation: allow the configured frontend origin plus any request
+  // without an Origin header (healthchecks, curl). For production hardening,
+  // replace `true` with an exact origin allowlist.
   app.register(cors, {
     origin: (origin, cb) => {
-      if (!origin || origin === env.CORS_ORIGIN) {
-        cb(null, true);
-      } else {
-        cb(new Error("Not allowed by CORS"), false);
-      }
+      // No origin = server-to-server / healthcheck — always allow.
+      if (!origin) return cb(null, true);
+      // Configured frontend origin — allow.
+      if (origin === env.CORS_ORIGIN) return cb(null, true);
+      // Same-host variation with or without trailing slash — allow.
+      const stripped = origin.replace(/\/$/, "");
+      const configured = env.CORS_ORIGIN.replace(/\/$/, "");
+      if (stripped === configured) return cb(null, true);
+      // Anything else — reject cleanly (no thrown error, just false).
+      cb(null, false);
     },
     methods: ["GET", "POST", "OPTIONS"],
   });
