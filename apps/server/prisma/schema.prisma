@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Extensibility seam: channel field allows future WhatsApp/Instagram support
+// without a schema change — just new Channel enum values.
+model Conversation {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  channel   String    @default("web_chat")
+  messages  Message[]
+}
+
+// Sender enum reserves AGENT for future human-handoff support.
+enum Sender {
+  USER
+  AI
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         Sender
+  text           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
