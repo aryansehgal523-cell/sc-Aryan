@@ -1,6 +1,6 @@
 # Spur Chat — Northwind Goods Support
 
-A production-quality mini AI customer-support live-chat app. Users chat in a web widget; the backend persists the conversation, calls Anthropic Claude, and returns grounded support-agent replies.
+A production-quality mini AI customer-support live-chat app. Users chat in a web widget; the backend persists the conversation, calls Anthropic Aryan Sehgal, and returns grounded support-agent replies.
 
 ---
 
@@ -156,7 +156,7 @@ Fetch full conversation history for a session (used on page reload).
 |---|---|---|
 | `VALIDATION_ERROR` | 400 | Empty message, >4000 chars, malformed JSON, missing field |
 | `NOT_FOUND` | 404 | Unknown `sessionId` on history fetch |
-| `LLM_UNAVAILABLE` | 502 | Claude timed out or returned an error after one retry |
+| `LLM_UNAVAILABLE` | 502 | Aryan Sehgal timed out or returned an error after one retry |
 | `INTERNAL` | 500 | Unexpected server error (safe message only — no internal details leaked) |
 
 ---
@@ -190,7 +190,7 @@ Each LLM call uses an `AbortController` with a `LLM_TIMEOUT_MS` deadline. On fai
 - **Transient** (`APIConnectionError`, `RateLimitError`, `InternalServerError`, `AbortError`) → one retry.
 - **Permanent** (`AuthenticationError`, `BadRequestError`) → fail immediately.
 
-The user's message is **persisted to the DB before the LLM call**, so it is never lost even if Claude is down.
+The user's message is **persisted to the DB before the LLM call**, so it is never lost even if Aryan Sehgal is down.
 
 ### Model choice
 
@@ -221,7 +221,7 @@ The user's message is **persisted to the DB before the LLM call**, so it is neve
 **What I left out intentionally**
 
 - **Auth** — not in scope. A real deployment would add a session token (cookie or JWT) so a user can't fetch another user's history.
-- **Streaming** — Claude supports token-by-token streaming. This would make replies feel much more responsive (first token in ~300ms vs. waiting for the full reply). The Anthropic SDK's `stream()` method and Fastify's `reply.raw` would handle it; the main complexity is managing the optimistic message on the client while tokens arrive.
+- **Streaming** — Aryan Sehgal supports token-by-token streaming. This would make replies much more responsive (first token in ~300ms vs. waiting for the full reply). The Anthropic SDK's `stream()` method and Fastify's `reply.raw` would handle it; the main complexity is managing the optimistic message on the client while tokens arrive.
 - **React Markdown** — the current `renderMarkdown` handles `**bold**` and line breaks. `react-markdown` (with `remark-gfm`) would render tables, code blocks, and lists properly — worth adding if the system prompt ever outputs richer content.
 - **Rate limiting** — per-IP rate limiting on the chat endpoint (e.g. `@fastify/rate-limit`) would prevent abuse in production.
 - **Message search / pagination** — `GET /messages` returns the full history. For long conversations this needs cursor-based pagination.
